@@ -41,7 +41,7 @@ foreach ($f in $files2){
     
     if($f.Extension -eq '.png'){
         # End  of this command is used to mute a warning thrown by tesseract. 
-        & $TES --dpi 600 $f ($temp.DirectoryName + '\' + $temp.BaseName) 2>$1 | Out-Null 
+        & $TES --dpi 400 $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 | Out-Null 
         gc $temp | Add-Content $text_out
     } 
 }
