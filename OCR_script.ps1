@@ -1,9 +1,11 @@
 #Desired output destination
-$DESTINATION = '{Path to destination folder here}'
+$DESTINATION = {Path to destination}
 
 #Location of desired PDF to convert
-$PDF = '{Path to PDF here}'
+$PDF = {Path to PDF}
 
+#Density of image in DPI
+$DENSITY = 600
 
 $PDFTK = 'pdftk.exe' #PDF splitter
 $MAG = 'magick.exe'  #PDF -> PNG
@@ -21,13 +23,13 @@ $DEST1 = $DESTINATION + '\out-%d.pdf'
 #Converting each pdf to a png, not in order because 10 comes before 2
 #foreach ($f in $files1){
 #    if($f.Extension -eq '.pdf'){
-#        & $MAG -density 400 $f +profile "*" ($DESTINATION + $f.BaseName + '.png')
+#        & $MAG -density 200 $f +profile "*" ($DESTINATION + $f.BaseName + '.png')
 #    }
 #}
 #rm *.pdf
 
-#The above code was unnecessary because imagemagick splits pages by default
-& $MAG -density 400 $PDF +profile "*" ($DESTINATION + 'out.png')
+#The above was unnecessary because imagemagick splits pages by default
+& $MAG -density $DENSITY $PDF +profile "*" ($DESTINATION + 'out.png')
 
 #Create output file for OCR dump
 $text_out = New-Item -Path $DESTINATION -Name 'output.txt'
@@ -36,12 +38,14 @@ $text_out = New-Item -Path $DESTINATION -Name 'output.txt'
 $temp = New-Item -Path $DESTINATION -Name 'temp.txt'
 
 $files2 = Get-ChildItem $DESTINATION
-
+$i = 1
 foreach ($f in $files2){
     
     if($f.Extension -eq '.png'){
+        Write-Host "Page " $global:i "out of" (($files2 | Measure-Object).Count - 2)
+        $global:i++
         # End  of this command is used to mute a warning thrown by tesseract. 
-        & $TES --dpi 400 $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 | Out-Null 
+        & $TES --dpi $DENSITY $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 | Out-Null 
         gc $temp | Add-Content $text_out
     } 
 }
