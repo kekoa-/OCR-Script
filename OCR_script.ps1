@@ -1,4 +1,4 @@
-#requires -Version 1.0
+#requires -Version 3.0
 #Desired output destination
 $exeImageMagick = 'magick.exe' #PDF -> PNG
 $exeTesseract = 'tesseract.exe' #OCR Program
@@ -11,23 +11,72 @@ $PDF = (Get-ChildItem -Path $env:USERPROFILE\Downloads\*.pdf | Select-Object -Fi
 #Density of image in DPI
 $DENSITY = 600
 
+
+#custom function to ensure dependant executibles are discoverable
+function Test-ExeDiscoverable
+{
+  <#
+      .SYNOPSIS
+      ensures executibles are discoverable
+      .DESCRIPTION
+      this function will also look in the PATH environment variable
+      .EXAMPLE
+      Test-ExeDiscoverable ping.exe
+      .EXAMPLE
+      Test-ExeDiscoverable  $someOtherBinary
+  #>
+  [CmdletBinding()]
+
+  [OutputType([bool])]
+  Param
+  (
+    # Param1 help description
+    [Parameter(Mandatory,
+        ValueFromPipelineByPropertyName,
+    Position = 0)]
+    [string]$ExecutibleName
+  )
+    
+  Begin
+  {
+  }
+  Process
+  {
+    if ((Get-Command $ExecutibleName -ErrorAction SilentlyContinue) -eq $null) 
+    {
+      Write-Verbose -Message "Unable to find $ExecutibleName in your PATH"
+      return $false   
+    }
+    else 
+    {
+      Write-Verbose -Message "OK - $ExecutibleName discoverable"
+      return $true
+    }
+  }
+  End
+  {
+  }
+}
+
+
+
 #ensure imagemagick is discoverable
-if ((Get-Command $exeImageMagick -ErrorAction SilentlyContinue) -eq $null) 
+if (!(Test-ExeDiscoverable -ExecutibleName $exeImageMagick -Verbose))
 {
   Write-Verbose -Message "Unable to find $exeImageMagick in your PATH"
+  BREAK
 }
 
 #$exeTesseract = "${env:ProgramFiles(x86)}\Tesseract-OCR\tesseract.exe" #OCR Program
 #ensure tesseract.exe is discoverable
-if ((Get-Command $exeTesseract -ErrorAction SilentlyContinue) -eq $null) 
-{
-  Write-Verbose -Message "Unable to find $exeTesseract in your PATH"
-}
-
-if (!(Test-Path -Path $exeTesseract))
+if (!(Test-ExeDiscoverable -ExecutibleName $exeTesseract -Verbose))
 {
   #check for Tesseract executible in current user install path
   $exeTesseract = "$env:LOCALAPPDATA\Tesseract-OCR\tesseract.exe"
+  if (!(Test-ExeDiscoverable -ExecutibleName $exeTesseract -Verbose))
+  {
+    BREAK
+  }
 }
 
 
