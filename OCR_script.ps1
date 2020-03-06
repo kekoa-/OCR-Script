@@ -8,7 +8,6 @@ $PDF = (Get-childitem -path $env:USERPROFILE\Downloads\*.pdf | Select-Object -Fi
 #Density of image in DPI
 $DENSITY = 600
 
-$PDFTK = 'pdftk.exe' #PDF splitter
 $MAG = 'magick.exe'  #PDF -> PNG
 $TES = "${env:ProgramFiles(x86)}\Tesseract-OCR\tesseract.exe" #OCR Program
 
@@ -21,20 +20,8 @@ if (!(Test-Path -Path $TES)){
 #Location + names of pdf outputs
 $DEST1 = $DESTINATION + '\out-%d.pdf'
 
-#Splits pdf into single pages
-#& $PDFTK $PDF burst output $DEST1
-#remove some pdf data output
-#rm doc_data.txt
-#$files1 = Get-ChildItem $DESTINATION
-#Converting each pdf to a png, not in order because 10 comes before 2
-#foreach ($f in $files1){
-#    if($f.Extension -eq '.pdf'){
-#        & $MAG -density 200 $f +profile "*" ($DESTINATION + $f.BaseName + '.png')
-#    }
-#}
-#rm *.pdf
 
-#The above was unnecessary because imagemagick splits pages by default
+#use imagemagick to split pdfs into png
 & $MAG -density $DENSITY $PDF +profile '*' ($DESTINATION + 'out.png')
 
 #Create output file for OCR dump
