@@ -46,7 +46,7 @@ foreach ($f in $files2){
         $global:i++
         # End  of this command is used to mute a warning thrown by tesseract. 
         & $TES --dpi $DENSITY $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 | Out-Null 
-        gc $temp | Add-Content $text_out
+        Get-Content -Path $temp | Add-Content -Path $text_out
     } 
 }
-rm temp.txt
+Remove-Item -Path $tempFileName
