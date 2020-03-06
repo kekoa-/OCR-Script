@@ -42,7 +42,7 @@ $i = 1
 foreach ($f in $files2){
     
     if($f.Extension -eq '.png'){
-        Write-Host "Page " $global:i "out of" (($files2 | Measure-Object).Count - 2)
+        Write-Verbose -Message "Page  $global:i out of (($files2 | Measure-Object).Count - 2)"
         $global:i++
         # End  of this command is used to mute a warning thrown by tesseract. 
         & $TES --dpi $DENSITY $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 | Out-Null 
