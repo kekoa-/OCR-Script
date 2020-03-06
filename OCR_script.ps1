@@ -1,5 +1,7 @@
 #requires -Version 1.0
 #Desired output destination
+$exeImageMagick = 'magick.exe' #PDF -> PNG
+$exeTesseract = 'tesseract.exe' #OCR Program
 $tempFileName = 'temp.txt'
 $DESTINATION = "$env:TEMP\ocr\processed_(Get-Date).ToString('yyyyMMddHHmmss')"
 
@@ -9,13 +11,23 @@ $PDF = (Get-ChildItem -Path $env:USERPROFILE\Downloads\*.pdf | Select-Object -Fi
 #Density of image in DPI
 $DENSITY = 600
 
-$MAG = 'magick.exe'  #PDF -> PNG
-$TES = "${env:ProgramFiles(x86)}\Tesseract-OCR\tesseract.exe" #OCR Program
-
-if (!(Test-Path -Path $TES))
+#ensure imagemagick is discoverable
+if ((Get-Command $exeImageMagick -ErrorAction SilentlyContinue) -eq $null) 
 {
-  #check for tesseract executible in current user install path
-  $TES = "$env:LOCALAPPDATA\Tesseract-OCR\tesseract.exe"
+  Write-Verbose -Message "Unable to find $exeImageMagick in your PATH"
+}
+
+#$exeTesseract = "${env:ProgramFiles(x86)}\Tesseract-OCR\tesseract.exe" #OCR Program
+#ensure tesseract.exe is discoverable
+if ((Get-Command $exeTesseract -ErrorAction SilentlyContinue) -eq $null) 
+{
+  Write-Verbose -Message "Unable to find $exeTesseract in your PATH"
+}
+
+if (!(Test-Path -Path $exeTesseract))
+{
+  #check for Tesseract executible in current user install path
+  $exeTesseract = "$env:LOCALAPPDATA\Tesseract-OCR\tesseract.exe"
 }
 
 
@@ -24,7 +36,7 @@ $DEST1 = $DESTINATION + '\out-%d.pdf'
 
 
 #use imagemagick to split pdfs into png
-& $MAG -density $DENSITY $PDF +profile '*' ($DESTINATION + 'out.png')
+& $exeImageMagick -density $DENSITY $PDF +profile '*' ($DESTINATION + 'out.png')
 
 #Create output file for OCR dump
 $text_out = New-Item -Path $DESTINATION -Name 'output.txt'
@@ -41,7 +53,7 @@ foreach ($f in $files2)
     Write-Verbose -Message "Page  $global:i out of (($files2 | Measure-Object).Count - 2)"
     $global:i++
     # End  of this command is used to mute a warning thrown by tesseract. 
-    $null = & $TES --dpi $DENSITY $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 
+    $null = & $exeTesseract --dpi $DENSITY $f ($temp.DirectoryName + '\' + $temp.BaseName) --psm 6 2>$1 
     Get-Content -Path $temp | Add-Content -Path $text_out
   } 
 }
