@@ -29,15 +29,15 @@ $DEST1 = $DESTINATION + '\out-%d.pdf'
 #rm *.pdf
 
 #The above was unnecessary because imagemagick splits pages by default
-& $MAG -density $DENSITY $PDF +profile "*" ($DESTINATION + 'out.png')
+& $MAG -density $DENSITY $PDF +profile '*' ($DESTINATION + 'out.png')
 
 #Create output file for OCR dump
 $text_out = New-Item -Path $DESTINATION -Name 'output.txt'
 
 #Creating Temp file for concatenation
-$temp = New-Item -Path $DESTINATION -Name 'temp.txt'
+$temp = New-Item -Path $DESTINATION -Name $tempFileName
 
-$files2 = Get-ChildItem $DESTINATION
+$files2 = Get-ChildItem -Path $DESTINATION
 $i = 1
 foreach ($f in $files2){
     
