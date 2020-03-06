@@ -1,15 +1,21 @@
 #Desired output destination
-$DESTINATION = {Path to destination}
+$tempFileName = 'temp.txt'
+$DESTINATION = "$env:TEMP\ocr\processed_(Get-Date).ToString('yyyyMMddHHmmss')"
 
 #Location of desired PDF to convert
-$PDF = {Path to PDF}
+$PDF = (Get-childitem -path $env:USERPROFILE\Downloads\*.pdf | Select-Object -First 1).fullname
 
 #Density of image in DPI
 $DENSITY = 600
 
 $PDFTK = 'pdftk.exe' #PDF splitter
 $MAG = 'magick.exe'  #PDF -> PNG
-$TES = 'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe' #OCR Program
+$TES = "${env:ProgramFiles(x86)}\Tesseract-OCR\tesseract.exe" #OCR Program
+
+if (!(Test-Path -Path $TES)){
+#check for tesseract executible in current user install path
+  $TES = "$env:LOCALAPPDATA\Tesseract-OCR\tesseract.exe"
+}
 
 
 #Location + names of pdf outputs
