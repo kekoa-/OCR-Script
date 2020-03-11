@@ -3,10 +3,11 @@
 $exeImageMagick = 'magick.exe' #PDF -> PNG
 $exeTesseract = 'tesseract.exe' #OCR Program
 $tempFileName = 'temp.txt'
-$DESTINATION = "$env:TEMP\ocr\processed_(Get-Date).ToString('yyyyMMddHHmmss')"
+$DESTINATION = "$env:TEMP\ocr\processed_$((Get-Date).ToString('yyyyMMddHHmmss'))"
 
 #Location of desired PDF to convert
 $PDF = (Get-ChildItem -Path $env:USERPROFILE\Downloads\*.pdf | Select-Object -First 1).fullname
+$PDF = get-childitem -Path "C:\WIP\del\del\*.pdf"
 
 #Density of image in DPI
 $DENSITY = 600
@@ -85,7 +86,7 @@ $DEST1 = $DESTINATION + '\out-%d.pdf'
 
 
 #use imagemagick to split pdfs into png
-& $exeImageMagick -density $DENSITY $PDF +profile '*' ($DESTINATION + 'out.png')
+& $exeImageMagick -density $DENSITY $PDF +profile '"*"' ($DESTINATION + 'out.png')
 
 #Create output file for OCR dump
 $text_out = New-Item -Path $DESTINATION -Name 'output.txt'
